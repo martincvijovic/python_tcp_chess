@@ -16,6 +16,12 @@ GAME_READY = "RDY!"
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect((SERVER_IP, PORT))
 
-while True: # TODO : Thread it
+msg = ""
+myColor = ""
+
+while msg != GAME_READY: # TODO : Thread it
     msg = s.recv(BUFFER_SIZE) 
-    print(msg.decode("utf-8"))
+    myColor = msg.decode("utf-8")
+
+print("Game ready, color: " + myColor)
+    
