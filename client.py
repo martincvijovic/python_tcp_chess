@@ -1,5 +1,7 @@
 import socket
 
+# GIT TEST
+
 PORT = 1998
 BUFFER_SIZE = 4
 SERVER_IP = socket.gethostname() # TODO : use a public (preferably static) IP for the server
