@@ -19,9 +19,10 @@ s.connect((SERVER_IP, PORT))
 msg = ""
 myColor = ""
 
-while msg != GAME_READY: # TODO : Thread it
+while (msg != GAME_READY): # 2 messages will be received, one with color, one with game ready
     msg = s.recv(BUFFER_SIZE) 
-    myColor = msg.decode("utf-8")
+    if (msg != GAME_READY):
+        myColor = msg.decode("utf-8")
 
 print("Game ready, color: " + myColor)
     

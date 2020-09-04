@@ -1,4 +1,5 @@
 import socket
+import time
 from random import randint, choice
 
 # buffer size is equal to message size (4 chars will do)
@@ -15,9 +16,21 @@ PLAYER_CNT = 2
 
 # creating the server socket on localhost
 # TODO : try/catch
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.bind((socket.gethostname(), PORT))
-s.listen(2) # two players
+
+connectionSuccess = False
+
+print("Trying to bind on port " + str(PORT) + "...")
+
+while (connectionSuccess == False):
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.bind((socket.gethostname(), PORT))
+        s.listen(2) # two players
+        connectionSuccess = True
+    except OSError:
+        print("Port " + str(PORT) + " in use, retrying after 5 seconds...")
+        connectionSuccess = False
+        time.sleep(5)
 
 print("Server listening on port " + str(PORT))
 
@@ -50,8 +63,8 @@ while players < 2:
 
 # both players connected, start the game
 print("Both players connected, starting the game...")
-for i in range(0, 1):
-    clientSockets[i].send(bytes(GAME_READY))
+for client in clientSockets:
+    client.send(bytes(GAME_READY, "utf-8"))
 
 
 ack = 0 # waiting for clients to start the game
