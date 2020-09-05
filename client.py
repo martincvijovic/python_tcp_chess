@@ -43,7 +43,7 @@ running = True
 # start the game
 pygame.display.set_caption("Chess by Martin Cvijovic")
 pygame.init()
-screen =  pygame.display.set_mode((400, 400))
+screen =  pygame.display.set_mode((900, 900))
 
 
 if myColor == COLOR_WHITE:
