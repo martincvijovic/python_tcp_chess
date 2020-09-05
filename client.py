@@ -1,28 +1,48 @@
 import socket
-
-# GIT TEST
+import threading
 
 PORT = 1998
-BUFFER_SIZE = 4
+BUFFER_SIZE = 5
 SERVER_IP = socket.gethostname() # TODO : use a public (preferably static) IP for the server
 
 # server message constants
-COLOR_WHITE = "WWWW"
+COLOR_WHITE = "WwWW"
 COLOR_BLACK = "BBBB"
 GAME_READY = "RDY!"
+END_GAME = "END"
 
 # creating the client socket
-# TODO : try catch
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect((SERVER_IP, PORT))
 
 msg = ""
 myColor = ""
 
-while (msg != GAME_READY): # 2 messages will be received, one with color, one with game ready
-    msg = s.recv(BUFFER_SIZE) 
-    if (msg != GAME_READY):
-        myColor = msg.decode("utf-8")
+msgCnt = 1
 
-print("Game ready, color: " + myColor)
-    
+while (msg != GAME_READY): # 2 messages will be received : COLOR, ID
+    msg = s.recv(BUFFER_SIZE) 
+    if (msgCnt == 1):
+        myColor = msg.decode("utf-8")
+    if (msgCnt == 2):
+        myID = msg.decode("utf-8")
+        break
+    msgCnt = msgCnt + 1
+
+print("Game ready, color: " + myColor + ", ID: " + myID)
+
+myMove = False
+running = True
+
+if myColor == COLOR_WHITE:
+    myMove = True
+
+# start the server listener:
+
+while running == True:
+    while myMove == False:
+        msg = s.recv(BUFFER_SIZE)
+        myMove = True
+        print(msg.decode("utf-8"))
+    s.send(bytes("PING-PONG", "utf-8"))
+    myMove = False

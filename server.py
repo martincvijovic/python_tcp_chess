@@ -13,6 +13,7 @@ INT_BLACK = 1
 # server specific messages and constants
 GAME_READY = "RDY!"
 PLAYER_CNT = 2
+END_GAME = "END"
 
 # creating the server socket on localhost
 # TODO : try/catch
@@ -63,13 +64,23 @@ while players < 2:
 
 # both players connected, start the game
 print("Both players connected, starting the game...")
+i = 0
 for client in clientSockets:
-    client.send(bytes(GAME_READY, "utf-8"))
+    client.send(bytes(str(i), "utf-8")) # identificating the clients
+    i = i + 1
 
 
-ack = 0 # waiting for clients to start the game
-while ack < 2:
-    # TODO : wait ACKs and start the message forwarding
-    ack = ack + 1
-    ack = ack - 1
+# game messages format : PXYxy
+# P - player count (1 or 2)
+# X, Y - piece coordinates
+# x, y - piece new coordinates (rule check done on client side)
+# server just forwards the messages
 
+msg = ""
+
+while msg != END_GAME:
+    msg = s.recv(BUFFER_SIZE) # not working?
+    if msg[0] == "0":
+        clientSockets[1].send(bytes(msg, "utf-8"))
+    else:
+        clientSockets[0].send(bytes(msg, "utf-8"))
