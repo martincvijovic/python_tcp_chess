@@ -1,6 +1,8 @@
 import socket
 import time
 from random import randint, choice
+import threading
+    
 
 # buffer size is equal to message size (4 chars will do)
 BUFFER_SIZE = 4
@@ -53,10 +55,10 @@ while players < 2:
 
     if playerColor == INT_WHITE:
         print("Assigning color: WHITE")
-        clientSockets[players].send(bytes(COLOR_WHITE, "utf-8"))
+        clientSockets[players].send(bytes(COLOR_WHITE.encode("utf-8")))
     else:
         print("Assigning color: BLACK")
-        clientSockets[players].send(bytes(COLOR_BLACK, "utf-8"))
+        clientSockets[players].send(bytes(COLOR_BLACK.encode("utf-8")))
 
     playerColor = 1 - playerColor # changing the pieces color for the second player
 
@@ -78,9 +80,25 @@ for client in clientSockets:
 
 msg = ""
 
-while msg != END_GAME:
-    msg = s.recv(BUFFER_SIZE) # not working?
-    if msg[0] == "0":
-        clientSockets[1].send(bytes(msg, "utf-8"))
-    else:
-        clientSockets[0].send(bytes(msg, "utf-8"))
+def firstListener():
+    while True: # TODO : create an end game condition
+        msg1=clientSockets[0].recv(BUFFER_SIZE)
+        if len(msg1) > 0:    
+            msg = msg1.decode("utf-8")
+            print("Incoming message from P0 to P1: " + msg)
+            clientSockets[1].send(bytes("PING".encode("utf-8")))     
+
+def secondListener():
+    while True: # TODO : create an end game condition
+        msg2=clientSockets[1].recv(BUFFER_SIZE)
+        if len(msg2) > 0:
+            msg = msg2.decode("utf-8")
+            print("Incoming message from P1 to P0: " + msg)
+            clientSockets[0].send(bytes("PONG".encode("utf-8"))) 
+
+
+thread1 = threading.Thread(target=firstListener)
+thread2 = threading.Thread(target=secondListener)
+
+thread1.start()
+thread2.start()
