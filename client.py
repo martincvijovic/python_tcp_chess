@@ -6,6 +6,8 @@ PORT = 1998
 BUFFER_SIZE = 5
 SERVER_IP = socket.gethostname() # TODO : use a public (preferably static) IP for the server
 
+# desi bubo
+
 # server message constants
 COLOR_WHITE = "WWWW"
 COLOR_BLACK = "BBBB"
