@@ -7,6 +7,7 @@ BUFFER_SIZE = 5
 SERVER_IP = socket.gethostname() # TODO : use a public (preferably static) IP for the server
 
 # desi bubo
+# evo me bubo
 
 # server message constants
 COLOR_WHITE = "WWWW"
