@@ -40,11 +40,13 @@ myMove = False
 running = True
 
 
-# start the game
+# pygame window settings
 pygame.display.set_caption("Chess by Martin Cvijovic")
 pygame.init()
-screen =  pygame.display.set_mode((900, 900))
+screen =  pygame.display.set_mode((600, 500))
 
+boardImage = pygame.image.load('board.png') # background
+rookWhiteImage = pygame.image.load('rook_white.png')
 
 if myColor == COLOR_WHITE:
     myMove = True
@@ -52,8 +54,25 @@ if myColor == COLOR_WHITE:
 
 # start the server listener:
 
+initX = 5 # initial coordinates 
+initY = 5 
+delta = 58 # number of steps to move to the next field
+
 while running == True:
-    screen.fill((255,255,255))
+    screen.fill((125,74,74))
+    screen.blit(boardImage,(0, 0))
+
+    # add all the initial pieces
+    # TODO : 3 arrays, x[i], y[i], piece[i]
+    # test purposes:
+    for i in range(0, 8):
+        for j in range(0, 2):
+            screen.blit(rookWhiteImage, (initX + i*delta, initY + j*delta)) 
+
+    for i in range(0, 8):
+        for j in range(6, 8):
+            screen.blit(rookWhiteImage, (initX + i*delta, initY + j*delta))
+
     pygame.display.update()
     for event in pygame.event.get():
         # actions happen here
