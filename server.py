@@ -26,11 +26,11 @@ def safeSend(recvSocket_, msg_):
     except:
         return False
 
-def socketListener(ID, clientSockets):
+def socketListener(ID_, clientSockets_):
     connected = True
 
     while connected:
-        msg = clientSockets[1-ID].recv(BUFFER_SIZE)
+        msg = clientSockets_[1-ID_].recv(BUFFER_SIZE)
 
         if len(msg) > 0:
             msg = msg.decode("utf-8")
@@ -38,16 +38,15 @@ def socketListener(ID, clientSockets):
             if msg == END_GAME:
                 connected = False
 
-            print("Incoming message from P" + ID + " to P" + 1 - ID)
-            connected = safeSend(clientSockets[1 - ID], msg)
+            print("Incoming message from P" + ID_ + " to P" + 1 - ID_)
+            connected = safeSend(clientSockets_[1 - ID_], msg)
 
 def newGame():
 
-    # accepting 2 players
     print("NEW GAME!")
 
-    players = 0 # currently connected players
-    playerColor = randint(0, 1) # randomly assigning white/black pieces to player 1
+    players = 0 
+    playerColor = randint(0, 1) 
 
     clientSockets = []
     clientIPs = []
@@ -74,7 +73,6 @@ def newGame():
 
         players = players + 1
 
-    # both players connected, start the game
     print("Both players connected, starting the game...")
     i = 0
     for client in clientSockets:
