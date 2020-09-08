@@ -19,33 +19,27 @@ PLAYER_CNT = 2
 END_GAME = "END" 
 
 
-def firstListener(clientSockets, clientIPs):
-    endGame_ = False
+def safeSend(recvSocket_, msg_):
+    try:
+        recvSocket_.send(bytes(msg_.encode("utf-8")))
+        return True
+    except:
+        return False
 
-    while endGame_ == False:
-        msg1=clientSockets[0].recv(BUFFER_SIZE)
-        if len(msg1) > 0:    
-            msg = msg1.decode("utf-8")
-            
-            if(msg == END_GAME):
-                endGame_ = True
-            
-            print("Incoming message from P0 to P1: " + msg)
-            clientSockets[1].send(bytes(msg.encode("utf-8")))     
+def socketListener(ID, clientSockets):
+    connected = True
 
-def secondListener(clientSockets, clientIPs):
-    endGame_ = False
+    while connected:
+        msg = clientSockets[1-ID].recv(BUFFER_SIZE)
 
-    while endGame_ == False: 
-        msg2=clientSockets[1].recv(BUFFER_SIZE)
-        if len(msg2) > 0:
-            msg = msg2.decode("utf-8")
+        if len(msg) > 0:
+            msg = msg.decode("utf-8")
 
-            if(msg == END_GAME): 
-                endGame_ = True
+            if msg == END_GAME:
+                connected = False
 
-            print("Incoming message from P1 to P0: " + msg)
-            clientSockets[0].send(bytes(msg.encode("utf-8"))) 
+            print("Incoming message from P" + ID + " to P" + 1 - ID)
+            connected = safeSend(clientSockets[1 - ID], msg)
 
 def newGame():
 
@@ -58,8 +52,8 @@ def newGame():
     clientSockets = []
     clientIPs = []
 
-    thread1 = threading.Thread(target=firstListener, args=(clientSockets, clientIPs))
-    thread2 = threading.Thread(target=secondListener, args=(clientSockets, clientIPs))
+    thread1 = threading.Thread(target=socketListener, args=(0, clientSockets))
+    thread2 = threading.Thread(target=socketListener, args=(1, clientSockets))
 
     while players < 2:
         socket_, ip_ = s.accept()
