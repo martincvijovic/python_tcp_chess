@@ -102,6 +102,8 @@ def newGame():
 # main program
 # creating the server socket on localhost
 
+#new
+
 connectionSuccess = False
 
 print("Trying to bind on port " + str(PORT) + "...")
