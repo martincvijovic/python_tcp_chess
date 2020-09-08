@@ -1,6 +1,4 @@
-A Python chess game using Python sockets and pygame.
+A chess game powered by Python sockets and pygame.
 
-WORKING : Initial communication
-WORKING : git/ssh
-
-TODO : Make the actual game
+TODO: add piece/board images
+TODO: on click events for pieces
