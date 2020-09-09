@@ -90,7 +90,7 @@ while running == True:
     # initial image matrix (TODO : flip horizontal for black player)
     # possible values: image var names, null for nothing
 
-    gameMatrix = [[],[]]
+    gameMatrix = [[nullImage] * 8,[nullImage] * 8]
 
     for i in range(8):
         for j in range(8):
@@ -98,66 +98,40 @@ while running == True:
 
 
     for i in range(8):
+        gameRow = [nullImage] * 8
         for j in range(8):
             if i == 1:
-                gameMatrix[i][j] = pawnBlackImage
+                gameRow[j] = pawnBlackImage
             if i == 6:
-                gameMatrix[i][j] = pawnWhiteImage
+                gameRow[j] = pawnWhiteImage  
             if i == 0:
                 if j == 0 or j == 7:
-                    gameMatrix[i][j] = rookBlackImage
+                    gameRow[j] = rookBlackImage
                 if j == 1 or j == 6:
-                    gameMatrix[i][j] = knightBlackImage
+                    gameRow[j] = knightBlackImage
                 if j == 2 or j == 5:
-                    gameMatrix[i][j] = bishopBlackImage
+                    gameRow[j] = bishopBlackImage
+                if j == 3:
+                    gameRow[j] = queenBlackImage
                 if j == 4:
-                    gameMatrix[i][j] = queenBlackImage
-                if j == 5:
-                    gameMatrix[i][j] = kingBlackImage
+                    gameRow[j] = kingBlackImage
             if i == 7:
                 if j == 0 or j == 7:
-                    gameMatrix[i][j] = rookWhiteImage
+                    gameRow[j] = rookWhiteImage
                 if j == 1 or j == 6:
-                    gameMatrix[i][j] = knightWhiteImage
+                    gameRow[j] = knightWhiteImage
                 if j == 2 or j == 5:
-                    gameMatrix[i][j] = bishopWhiteImage
+                    gameRow[j] = bishopWhiteImage
+                if j == 3:
+                    gameRow[j] = queenWhiteImage
                 if j == 4:
-                    gameMatrix[i][j] = queenWhiteImage
-                if j == 5:
-                    gameMatrix[i][j] = kingWhiteImage
-
+                    gameRow[j] = kingWhiteImage
+        gameMatrix[i] = gameRow
 
     for i in range(0, 8):
-        for j in range(0, 2):
-            if j == 1:
-                screen.blit(pawnBlackImage, (initX + i*delta, initY + j*delta)) 
-            else:
-                if i == 0 or i == 7:
-                    screen.blit(rookBlackImage, (initX + i*delta, initY + j*delta)) 
-                if i == 1 or i == 6:
-                    screen.blit(knightBlackImage, (initX + i*delta, initY + j*delta)) 
-                if i == 2 or i == 5:
-                    screen.blit(bishopBlackImage, (initX + i*delta, initY + j*delta)) 
-                if i == 3:
-                    screen.blit(kingBlackImage, (initX + i*delta, initY + j*delta)) 
-                if i == 4:
-                    screen.blit(queenBlackImage, (initX + i*delta, initY + j*delta))
-
-    for i in range(0, 8):
-        for j in range(6, 8):
-            if j == 6:
-                screen.blit(pawnWhiteImage, (initX + i*delta, initY + j*delta))
-            else:
-                if i == 0 or i == 7:
-                    screen.blit(rookWhiteImage, (initX + i*delta, initY + j*delta)) 
-                if i == 1 or i == 6:
-                    screen.blit(knightWhiteImage, (initX + i*delta, initY + j*delta)) 
-                if i == 2 or i == 5:
-                    screen.blit(bishopWhiteImage, (initX + i*delta, initY + j*delta)) 
-                if i == 3:
-                    screen.blit(kingWhiteImage, (initX + i*delta, initY + j*delta)) 
-                if i == 4:
-                    screen.blit(queenWhiteImage, (initX + i*delta, initY + j*delta))
+        for j in range(0, 8):
+            screen.blit(gameMatrix[j][i], (initX + i*delta, initY + j*delta)) 
+            
 
     pygame.display.update()
     for event in pygame.event.get():
