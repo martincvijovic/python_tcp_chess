@@ -63,6 +63,8 @@ queenBlackImage = pygame.image.load('queen_black.png')
 kingBlackImage = pygame.image.load('king_black.png')
 pawnBlackImage = pygame.image.load('pawn_black.png')
 
+nullImage = pygame.image.load('null.png')
+
 if myColor == COLOR_WHITE:
     myMove = True
     # print("I am white, i ping first.")
@@ -84,6 +86,46 @@ while running == True:
     # add all the initial pieces
     # TODO : 3 arrays, x[i], y[i], piece[i]
     # test purposes:
+
+    # initial image matrix (TODO : flip horizontal for black player)
+    # possible values: image var names, null for nothing
+
+    gameMatrix = [[],[]]
+
+    for i in range(8):
+        for j in range(8):
+            gameMatrix.append(nullImage)
+
+
+    for i in range(8):
+        for j in range(8):
+            if i == 1:
+                gameMatrix[i][j] = pawnBlackImage
+            if i == 6:
+                gameMatrix[i][j] = pawnWhiteImage
+            if i == 0:
+                if j == 0 or j == 7:
+                    gameMatrix[i][j] = rookBlackImage
+                if j == 1 or j == 6:
+                    gameMatrix[i][j] = knightBlackImage
+                if j == 2 or j == 5:
+                    gameMatrix[i][j] = bishopBlackImage
+                if j == 4:
+                    gameMatrix[i][j] = queenBlackImage
+                if j == 5:
+                    gameMatrix[i][j] = kingBlackImage
+            if i == 7:
+                if j == 0 or j == 7:
+                    gameMatrix[i][j] = rookWhiteImage
+                if j == 1 or j == 6:
+                    gameMatrix[i][j] = knightWhiteImage
+                if j == 2 or j == 5:
+                    gameMatrix[i][j] = bishopWhiteImage
+                if j == 4:
+                    gameMatrix[i][j] = queenWhiteImage
+                if j == 5:
+                    gameMatrix[i][j] = kingWhiteImage
+
 
     for i in range(0, 8):
         for j in range(0, 2):
