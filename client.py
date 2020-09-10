@@ -35,6 +35,47 @@ def safeSend(recvSocket_, msg_):
     except:
         return False
 
+def serverListener(serverSocket_, gameMatrix_):
+    connected = True
+
+    while connected:
+        msg = s.recv(BUFFER_SIZE)
+
+        if len(msg) > 0:
+            msg = msg.decode("utf-8")
+            print("Received message: " + msg)
+
+            # updating the game matrix
+            if msg == END_GAME:
+                connected = False
+
+            xold = msg[1]
+            yold = msg[2]
+            xnew = msg[3]
+            ynew = msg[4]
+
+            tempRow = gameMatrix[int(xold)]
+            tempPiece = tempRow[int(yold)]
+            tempRow[int(yold)] = nullImage
+            gameMatrix[int(xold)] = tempRow
+
+            tempRow = gameMatrix[int(xnew)]
+            tempRow[int(ynew)] = tempPiece
+            gameMatrix[int(xnew)] = tempRow
+
+            if movableMatrix[int(xnew)][int(ynew)] == 1: # if a piece i control has been captured
+                tempRow = movableMatrix[int(xnew)]
+                tempRow[int(ynew)] = 0
+                movableMatrix[int(xnew)] = tempRow
+
+            global myMove
+            myMove = True
+            print("My move...")
+
+def canMove(pieceImage_, indX_, indY_):
+    # TODO : calculate available fields for every piece possible (care if king checked)
+    return True
+
 print("Connecting to the server...")
 
 # creating the client socket
@@ -90,7 +131,7 @@ nullImage = pygame.image.load('null.png')
 
 pygame.display.set_icon(kingBlackImage) # game window icon
 
-if myColor == COLOR_WHITE:
+if myColor == COLOR_BLACK:
     myMove = True
 
 initX = 0
@@ -101,10 +142,9 @@ delta = 50
 # and movable matrix (flags for pieces the user can move)
 
 gameMatrix = [[nullImage] * 8,[nullImage] * 8] # TODO : flip the game matrix horizontally for the black player
-
+nullImages = [nullImage, nullImage, nullImage, nullImage, nullImage, nullImage, nullImage, nullImage]
 for i in range(8):
-    for j in range(8):
-        gameMatrix.append(nullImage)
+    gameMatrix.append(nullImages)
 
 
 for i in range(8):
@@ -142,24 +182,49 @@ for i in range(8):
 
 movableMatrix = [[0] * 8,[0] * 8] # 1 - the piece can be moved by user,
                                   # 0 - the piece cannot be moved by user
-    
-tempArray = [1] * 8
+
+tempArray0 = [0, 0, 0, 0, 0, 0, 0, 0]
+
+for i in range(8):
+    movableMatrix.append(tempArray0)
+
+tempArray = [1, 1, 1, 1, 1, 1, 1, 1]
 
 if myColor == COLOR_WHITE:
-    for i in range(2):
-        movableMatrix[i] = tempArray 
+    movableMatrix[0] = tempArray 
+    movableMatrix[1] = tempArray 
 else:
-    for i in range(6, 8):
-        movableMatrix[i] = tempArray
+    movableMatrix[6] = tempArray
+    movableMatrix[7] = tempArray
 
+serverListener = threading.Thread(target=serverListener, args=((s, gameMatrix)))
+serverListener.start()
 
-while running == True:
+releasedPiece = True # flag indicating that the first click will happen
+cursorImage = nullImage # an image drawing at the cursor location (when moving pieces)
+
+xOld = -1
+yOld = -1 # needed for the packets to send to the other player
+
+while running == True: # PYGAME STARTING
+
+    # TODO : fix the movable matrix, not working sometimes
+
     screen.fill((125,74,74))
     screen.blit(boardImage,(0, 0))    
 
     for i in range(0, 8):
         for j in range(0, 8):
             screen.blit(gameMatrix[j][i], (initX + i*delta, initY + j*delta)) 
+    
+
+    tempX, tempY = pygame.mouse.get_pos()
+    
+    if tempX > 0 and tempX < 200 and tempY > 0 and tempY < 200 and releasedPiece == False:
+        try:
+            screen.blit(cursorImage, tempX, tempY)
+        except TypeError:
+            pass
 
     pygame.display.update()
 
@@ -171,20 +236,61 @@ while running == True:
             dummyVar = safeSend(s, END_GAME)
             s.close()
         
-        if event.type == pygame.BUTTON_LEFT:
-            if myMove == True:
-                # TODO : check if the user can move the clicked piece, if so calculate the allowed fields (care for check), wait for action and update
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if myMove == True and pygame.mouse.get_pressed() == (1, 0, 0): # if left click pressed
+                # TODO : check if the user can move the clicked piece, if so calculate the allowed fields (care if king checked)
+                # TODO : move the piece with the mouse until another left key is pressed, if matches the allowed field, release, update both matrices and notify
+                posX, posY = pygame.mouse.get_pos()
+                # print(posX, posY)
+
+                indX = posY // 50
+                indY = posX // 50
+
+                print("click at " + str(indX) + ", " + str(indY) + ", isMovable: " + str(movableMatrix[indX][indY]))
+
+                if releasedPiece == False and canMove(cursorImage, indX, indY) == True:
+                    releasedPiece = True
+                    msg = ""
+                    msg = msg + str(myID) + str(xOld) + str(yOld) + str(indX) + str(indY)
+                    print("Sending message: " + msg)
+                    safeSend(s, msg)
+
+                    tempRow = movableMatrix[indX]
+                    tempRow[indY] = 1
+                    movableMatrix[indX] = tempRow
+
+                    tempRow = gameMatrix[indX]
+                    tempRow[indY] = cursorImage
+                    gameMatrix[indX] = tempRow
+                    print("planting a piece")
+
+                    # fill
+                    myMove = False
+                    releasedPiece  == True
+                    
+                    print("Waiting for the opponent's move")
+                    continue
+                
+                
+                tempRow = movableMatrix[indX]
+
+                if tempRow[indY] == 1 and releasedPiece == True:
+                    print("picking up a piece")
+                    releasedPiece = False
+                    cursorImage = gameMatrix[indX][indY]
+                    
+                    tempRow = gameMatrix[indX]
+                    tempRow[indY] = nullImage
+                    gameMatrix[indX] = tempRow
+
+                    tempRow = movableMatrix[indX]
+                    tempRow[indY] = 0
+                    movableMatrix[indX] = tempRow
+
+                    xOld = indX
+                    yOld = indY
+            else:
+                print("You clicked but it's not your move")                    
 
 
-
-'''
-while running == True:
-    while myMove == False:
-        msg = s.recv(BUFFER_SIZE)
-        myMove = True
-        print("Received a ping from the opponent")
-        print(msg.decode("utf-8"))
-    print("Trying to ping the opponent...")
-    s.send(bytes("PING".encode("utf-8")))
-    myMove = False
-'''
+                

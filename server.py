@@ -4,7 +4,7 @@ from random import randint, choice
 import threading
     
 # buffer size = message size 
-BUFFER_SIZE = 4
+BUFFER_SIZE = 5
 PORT = 1998 
 
 # server-specific messages and constants
@@ -30,7 +30,7 @@ def socketListener(ID_, clientSockets_):
     connected = True
 
     while connected:
-        msg = clientSockets_[1-ID_].recv(BUFFER_SIZE)
+        msg = clientSockets_[ID_].recv(BUFFER_SIZE)
 
         if len(msg) > 0:
             msg = msg.decode("utf-8")
@@ -38,8 +38,8 @@ def socketListener(ID_, clientSockets_):
             if msg == END_GAME:
                 connected = False
 
-            print("Incoming message from P" + ID_ + " to P" + 1 - ID_)
-            connected = safeSend(clientSockets_[1 - ID_], msg)
+            print("Incoming message from P" + str(ID_) + " to P" + str(1 - ID_) + ": " + msg)
+            connected = safeSend(clientSockets_[1-ID_], msg)
 
 def newGame():
 
@@ -110,7 +110,7 @@ print("Trying to bind on port " + str(PORT) + "...")
 
 while (connectionSuccess == False):
     try:
-        
+
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.bind((socket.gethostname(), PORT))
         s.listen(2) # max. of 2 possible players
