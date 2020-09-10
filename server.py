@@ -110,6 +110,7 @@ print("Trying to bind on port " + str(PORT) + "...")
 
 while (connectionSuccess == False):
     try:
+        
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.bind((socket.gethostname(), PORT))
         s.listen(2) # max. of 2 possible players
